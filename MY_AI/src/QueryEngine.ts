@@ -89,6 +89,7 @@ import { resolveLocalModelRoute } from './query/localModelRouter.js'
 import { logEvent } from './services/analytics/index.js'
 import { resolveModelRetryPolicy } from './query/modelRetryPolicy.js'
 import { extractAndStoreTurnMemory } from './memory/memoryExtractor.js'
+import { ingestTurnFeedback } from './feedback/ingestion.js'
 
 // Lazy: MessageSelector.tsx pulls React/ink; only needed for message filtering at query time
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -705,6 +706,15 @@ export class QueryEngine {
           // Memory extraction must never fail the main request path.
         }
       }
+
+      try {
+        await ingestTurnFeedback(this.mutableMessages, {
+          sessionId: getSessionId(),
+          outcome: 'success',
+        })
+      } catch {
+        // Feedback ingestion must never fail the main request path.
+      }
       return
     }
 
@@ -1150,6 +1160,15 @@ export class QueryEngine {
     }
 
     if (!isResultSuccessful(result, lastStopReason)) {
+      try {
+        await ingestTurnFeedback(this.mutableMessages, {
+          sessionId: getSessionId(),
+          outcome: 'error',
+        })
+      } catch {
+        // Feedback ingestion must never fail the main request path.
+      }
+
       yield {
         type: 'result',
         subtype: 'error_during_execution',
@@ -1208,6 +1227,15 @@ export class QueryEngine {
       } catch {
         // Memory extraction must never fail the main request path.
       }
+    }
+
+    try {
+      await ingestTurnFeedback(this.mutableMessages, {
+        sessionId: getSessionId(),
+        outcome: isApiError ? 'error' : 'success',
+      })
+    } catch {
+      // Feedback ingestion must never fail the main request path.
     }
 
     yield {

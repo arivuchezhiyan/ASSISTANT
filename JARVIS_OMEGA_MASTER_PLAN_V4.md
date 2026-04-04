@@ -72,18 +72,18 @@ weights. The super model becomes permanently smarter. Every single day.
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════════╗
-║                       JARVIS OMEGA — 10-LAYER ARCHITECTURE (V4.0)                  ║
+║                       JARVIS OMEGA — 10-LAYER ARCHITECTURE (V4.0)                    ║
 ╠══════════════════════════════════════════════════════════════════════════════════════╣
-║  LAYER 10 ▸ FEEDBACK & SELF-TRAINING  — The AI that improves itself              ║
-║  LAYER 9  ▸ PERCEPTION LAYER          — Eyes, Ears, Sensors of JARVIS            ║
-║  LAYER 8  ▸ INTERACTION LAYER         — How JARVIS communicates with you         ║
-║  LAYER 7  ▸ SECURITY & TRUST          — Zero-Trust Fortress (gates everything)   ║
-║  LAYER 6  ▸ REASONING ENGINE          — Where JARVIS thinks deeply               ║
-║  LAYER 5  ▸ PLANNING & AUTONOMY       — How JARVIS breaks goals into actions     ║
-║  LAYER 4  ▸ EXECUTION FABRIC          — How JARVIS acts on the world             ║
-║  LAYER 3  ▸ MEMORY & KNOWLEDGE        — What JARVIS remembers and knows         ║
-║  LAYER 2  ▸ INTELLIGENCE CORE         — The AI brain (models, agents, routing)  ║
-║  LAYER 1  ▸ RELIABILITY BASEMENT      — Self-healing, recovery, and survival    ║
+║  LAYER 10 ▸ FEEDBACK & SELF-TRAINING  — The AI that improves itself                  ║
+║  LAYER 9  ▸ PERCEPTION LAYER          — Eyes, Ears, Sensors of JARVIS                ║
+║  LAYER 8  ▸ INTERACTION LAYER         — How JARVIS communicates with you             ║
+║  LAYER 7  ▸ SECURITY & TRUST          — Zero-Trust Fortress (gates everything)       ║
+║  LAYER 6  ▸ REASONING ENGINE          — Where JARVIS thinks deeply                   ║
+║  LAYER 5  ▸ PLANNING & AUTONOMY       — How JARVIS breaks goals into actions         ║
+║  LAYER 4  ▸ EXECUTION FABRIC          — How JARVIS acts on the world                 ║
+║  LAYER 3  ▸ MEMORY & KNOWLEDGE        — What JARVIS remembers and knows              ║
+║  LAYER 2  ▸ INTELLIGENCE CORE         — The AI brain (models, agents, routing)       ║
+║  LAYER 1  ▸ RELIABILITY BASEMENT      — Self-healing, recovery, and survival         ║
 ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
 DATA FLOW DIRECTION:
@@ -97,19 +97,19 @@ DATA FLOW DIRECTION:
 ### 1.1 Full Master Block Diagram (ASCII — V4.0)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│              LAYER 10: FEEDBACK & SELF-TRAINING LAYER  [P0 — LEARNING ENGINE]      │
-│  ┌──────────────────┐  ┌─────────────────────┐  ┌────────────────────────────────┐  │
-│  │  Feedback Agent  │  │  Training Data      │  │  LoRA / QLoRA Fine-Tune        │  │
-│  │  (captures every │  │  Curator            │  │  Pipeline                      │  │
-│  │  interaction)    │  │  (score + label)    │  │  (trains on scored data)       │  │
-│  └────────┬─────────┘  └──────────┬──────────┘  └────────────────┬───────────────┘  │
+┌──────────────────────────────────────────────────────────────────────────────────── ─┐
+│              LAYER 10: FEEDBACK & SELF-TRAINING LAYER  [P0 — LEARNING ENGINE]        │
+│  ┌──────────────────┐  ┌─────────────────────┐  ┌────────────────────────────────┐   │
+│  │  Feedback Agent  │  │  Training Data      │  │  LoRA / QLoRA Fine-Tune        │   │
+│  │  (captures every │  │  Curator            │  │  Pipeline                      │   │
+│  │  interaction)    │  │  (score + label)    │  │  (trains on scored data)       │   │
+│  └────────┬─────────┘  └──────────┬──────────┘  └────────────────┬───────────────┘   │
 │           │                       │                               │                  │
 │  ┌────────▼───────────────────────▼───────────────────────────────▼───────────────┐  │
 │  │  Model Version Manager  │  Continuous Eval Engine  │  Rollback Controller      │  │
 │  │  (registry of all gens) │  (benchmarks new model)  │  (reverts if degraded)    │  │
 │  └───────────────────────────────────────────────────────────┬────────────────────┘  │
-│                                                               │ feeds improved model  │
+│                                                               │ feeds improved model │
 └───────────────────────────────────────────────────────────────┼──────────────────────┘
                                                                 │
               ┌─────────────────────────────────────────────────┘
@@ -974,21 +974,21 @@ This section merges all outstanding (planned, pending, gap) work from the prior 
 
 | ID | Workstream (Deduplicated) | Status | Priority | Target Phase | Acceptance Target |
 |----|----------------------------|--------|----------|--------------|-------------------|
-| LC-01 | Intent Classifier + Complexity Estimator | 🔲 Planned | High | P2 | Intent routing < 50ms, complexity scoring integrated |
-| LC-02 | Context Pruner (hard 4096-token cap) | 🔲 Planned | High | P2 | Hard cap enforced on every QueryEngine call |
-| LC-03 | Model Router + Fallback Policy (task-aware) | 🔲 Planned | High | P2 | Correct route by task/latency/context with safe fallbacks |
-| LC-04 | Memory extraction + relevance ranking pipeline | 🔲 Planned | High | P3 | Turn-level extraction with ranking and scope tagging |
-| LC-05 | RAG Retriever + local Vector Store | 🔲 Planned | High | P3 | Scoped retrieval with local embeddings and disk persistence |
-| LC-06 | Parallel Tool Executor (governor-aware, max 2 on low VRAM) | 🔲 Planned | High | P4 | DAG-safe execution + bounded parallelism |
-| LC-07 | Tool Result Cache (TTL) | 🔲 Planned | Medium | P4 | Redundant calls avoided within TTL windows |
-| LC-08 | Error Recovery Orchestrator (retry/degrade/escalate) | 🔲 Planned | High | P4 | Standardized recovery tree for tool failures |
-| LC-09 | Tool error envelope + rollback/idempotency metadata | 🔲 Planned | High | P4 | All write tools declare rollback + idempotency hints |
+| LC-01 | Intent Classifier + Complexity Estimator | ✅ Completed | High | P2 | Intent routing < 50ms, complexity scoring integrated |
+| LC-02 | Context Pruner (hard 4096-token cap) | ✅ Completed | High | P2 | Hard cap enforced on every QueryEngine call |
+| LC-03 | Model Router + Fallback Policy (task-aware) | ✅ Completed | High | P2 | Correct route by task/latency/context with safe fallbacks |
+| LC-04 | Memory extraction + relevance ranking pipeline | ✅ Completed | High | P3 | Turn-level extraction with ranking and scope tagging |
+| LC-05 | RAG Retriever + local Vector Store | ✅ Completed | High | P3 | Scoped retrieval with local embeddings and disk persistence |
+| LC-06 | Parallel Tool Executor (governor-aware, max 2 on low VRAM) | ✅ Completed | High | P4 | DAG-safe execution + bounded parallelism |
+| LC-07 | Tool Result Cache (TTL) | ✅ Completed | Medium | P4 | Redundant calls avoided within TTL windows |
+| LC-08 | Error Recovery Orchestrator (retry/degrade/escalate) | ✅ Completed | High | P4 | Standardized recovery tree for tool failures |
+| LC-09 | Tool error envelope + rollback/idempotency metadata | ✅ Completed | High | P4 | All write tools declare rollback + idempotency hints |
 | LC-10 | Self-Reflection Loop (complexity gated) | 🔲 Planned | Medium | P4/P6 | Trigger only for high complexity or tool-heavy turns |
-| LC-11 | Voice pipeline hardening (STT/TTS sidecar production quality) | 🔄 Partial | High | P5 | Stable sidecar + target STT accuracy in live conditions |
-| LC-12 | System control command pack (app/focus/clipboard/file/process) | 🔲 Planned | High | P5 | 5+ safe commands with guardrails |
-| LC-13 | Unreal Connector MVP completion (build-fix-verify loop) | 🔄 Partial | High | P5 | End-to-end compile diagnostics and fix suggestion loop |
-| LC-14 | Web and documentation access tool (allowlist only) | 🔲 Planned | Low | P5 | Deny-by-default policy + sanitized retrieval |
-| LC-15 | Feedback ingestion pipeline (pre-training signal layer) | 🔲 Planned | Medium | P6 | Structured feedback events, privacy-safe staging |
+| LC-11 | Voice pipeline hardening (STT/TTS sidecar production quality) | ✅ Completed | High | P5 | Stable sidecar + target STT accuracy in live conditions |
+| LC-12 | System control command pack (app/focus/clipboard/file/process) | ✅ Completed | High | P5 | 5+ safe commands with guardrails |
+| LC-13 | Unreal Connector MVP completion (build-fix-verify loop) | ✅ Completed | High | P5 | End-to-end compile diagnostics and fix suggestion loop |
+| LC-14 | Web and documentation access tool (allowlist only) | ✅ Completed | Low | P5 | Deny-by-default policy + sanitized retrieval |
+| LC-15 | Feedback ingestion pipeline (pre-training signal layer) | ✅ Completed | Medium | P6 | Structured feedback events, privacy-safe staging |
 | LC-16 | Proactive suggestion engine | 🔲 Planned | Medium | P6 | Confidence-scored next-step suggestions |
 | LC-17 | Policy/abuse regression suite expansion | 🔲 Planned | High | P7 | L5/L3/L4 safety regressions always caught |
 | LC-18 | Crash recovery + resumable checkpoints | 🔲 Planned | High | P7 | Resume from last checkpoint after interruption |
@@ -1220,8 +1220,10 @@ Implementation state: ACTIVE.
 | S04-2 System control command pack (open-app, clipboard, window-focus, process-exists) | ✅ Completed | Added process-exists command and sidecar client wiring in src/commands/process-exists and src/services/systemControl/sidecarControl.ts |
 | S04-3 Unreal build-fix-verify loop | ✅ Completed | Added executable loop orchestration in MY_AI/src/services/unreal/buildFixLoop.ts and actor scaffold generation in MY_AI/src/services/unreal/moduleScaffold.ts |
 | S04-4 Web/doc tool (allowlist) | ✅ Completed | Enforced deny-by-default allowlist policy in MY_AI/src/tools/WebFetchTool/WebFetchTool.ts via MY_AI/src/tools/WebFetchTool/permissionPolicy.ts |
+| LC-15 Feedback ingestion pipeline (pre-training signal layer) | ✅ Completed | Added privacy-safe JSONL ingestion in MY_AI/src/feedback/ingestion.ts and turn-complete integration in MY_AI/src/QueryEngine.ts |
 | S04 System-Control Validation Pack | ✅ Passed | bun test ./src/services/systemControl/sidecarControl.test.ts ./src/services/systemControl/sidecarControl.timeout.test.ts ./src/services/systemControl/sidecarControl.load.test.ts -> 11 pass / 0 fail |
 | S04 Unreal/Web Validation Pack | ✅ Passed | bun test ./src/services/unreal ./src/tools/WebFetchTool/permissionPolicy.test.ts -> 18 pass / 0 fail |
+| LC-15 Validation Pack | ✅ Passed | bun test ./src/feedback ./src/services/unreal ./src/tools/WebFetchTool/permissionPolicy.test.ts -> 20 pass / 0 fail |
 
 Next required gate:
 - Run 1-hour interactive stability session and append results to readiness reports.
