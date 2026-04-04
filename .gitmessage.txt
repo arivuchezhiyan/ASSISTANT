@@ -1,0 +1,11 @@
+<type>: <short summary>
+
+What is new:
+- <change 1>
+- <change 2>
+
+Why:
+- <reason>
+
+Validation:
+- <tests/commands run>

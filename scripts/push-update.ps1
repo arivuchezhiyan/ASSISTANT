@@ -2,7 +2,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$Message,
 
-  [string]$Branch = 'main'
+  [string]$Branch = 'dev'
 )
 
 $ErrorActionPreference = 'Stop'
