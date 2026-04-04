@@ -903,16 +903,16 @@ Required pass set (updated from V3.0):
 | DAILY_USE_READINESS_REPORT.md               | Daily operational readiness check            | ✅ Exists   |
 | GO_LIVE_SMOKE_AND_ROLLBACK_RUNBOOK.md       | Go-live and rollback procedures              | ✅ Exists   |
 | LOCAL_AI_USER_GUIDE.md                      | How to use the voice/web interface           | ✅ Exists   |
-| FEEDBACK_AGENT_DESIGN.md                    | Full spec: capture schema, privacy, storage  | 🔲 Create   |
-| TRAINING_DATA_CURATOR_SPEC.md               | Scoring logic, labeling rules, dedup         | 🔲 Create   |
-| LORA_PIPELINE_RUNBOOK.md                    | How to run fine-tuning, configs, schedules   | 🔲 Create   |
-| EVAL_SUITE_SPEC.md                          | All 3 tiers of eval tests, thresholds        | 🔲 Create   |
-| MODEL_REGISTRY_SCHEMA.md                    | Version registry format, rollback procedure  | 🔲 Create   |
-| AGENT_SWARM_DESIGN.md                       | Multi-agent architecture spec (+ Feedback)   | 🔲 Create   |
-| MEMORY_FABRIC_DESIGN.md                     | 4-tier memory system spec                    | 🔲 Create   |
-| WORK_PACKS_SPEC.md                          | All 6 domain work packs specification        | 🔲 Create   |
-| COMMAND_CENTER_DESIGN.md                    | Dashboard and KPI architecture               | 🔲 Create   |
-| ZERO_TRUST_SECURITY_SPEC.md                 | Full security + vault + threat model         | 🔲 Create   |
+| FEEDBACK_AGENT_DESIGN.md                    | Full spec: capture schema, privacy, storage  | ✅ Created  |
+| TRAINING_DATA_CURATOR_SPEC.md               | Scoring logic, labeling rules, dedup         | ✅ Created  |
+| LORA_PIPELINE_RUNBOOK.md                    | How to run fine-tuning, configs, schedules   | ✅ Created  |
+| EVAL_SUITE_SPEC.md                          | All 3 tiers of eval tests, thresholds        | ✅ Created  |
+| MODEL_REGISTRY_SCHEMA.md                    | Version registry format, rollback procedure  | ✅ Created  |
+| AGENT_SWARM_DESIGN.md                       | Multi-agent architecture spec (+ Feedback)   | ✅ Created  |
+| MEMORY_FABRIC_DESIGN.md                     | 4-tier memory system spec                    | ✅ Created  |
+| WORK_PACKS_SPEC.md                          | All 6 domain work packs specification        | ✅ Created  |
+| COMMAND_CENTER_DESIGN.md                    | Dashboard and KPI architecture               | ✅ Created  |
+| ZERO_TRUST_SECURITY_SPEC.md                 | Full security + vault + threat model         | ✅ Created  |
 
 ---
 
