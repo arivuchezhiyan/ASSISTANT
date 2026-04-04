@@ -6,6 +6,12 @@ export type UnrealModuleScaffoldRequest = {
   moduleName: string
 }
 
+export type UnrealActorScaffoldRequest = {
+  projectRoot: string
+  moduleName: string
+  actorName: string
+}
+
 export type UnrealScaffoldFile = {
   relativePath: string
   content: string
@@ -15,6 +21,14 @@ function validateModuleName(name: string): string {
   const trimmed = name.trim()
   if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(trimmed)) {
     throw new Error('Invalid module name. Use letters, numbers, and underscores.')
+  }
+  return trimmed
+}
+
+function validateActorName(name: string): string {
+  const trimmed = name.trim()
+  if (!/^A[A-Za-z0-9_]*$/.test(trimmed)) {
+    throw new Error('Invalid actor name. Unreal actor classes should start with A.')
   }
   return trimmed
 }
@@ -43,10 +57,43 @@ export function createModuleScaffoldPlan(
   return buildFilePlan(moduleName)
 }
 
+export function createActorScaffoldPlan(
+  request: UnrealActorScaffoldRequest,
+): UnrealScaffoldFile[] {
+  const moduleName = validateModuleName(request.moduleName)
+  const actorName = validateActorName(request.actorName)
+  const generatedHeader = `${actorName}.generated.h`
+
+  return [
+    {
+      relativePath: `Source/${moduleName}/Public/${actorName}.h`,
+      content: `#pragma once\n\n#include "CoreMinimal.h"\n#include "GameFramework/Actor.h"\n#include "${generatedHeader}"\n\nUCLASS()\nclass ${moduleName.toUpperCase()}_API ${actorName} : public AActor\n{\n    GENERATED_BODY()\n\npublic:\n    ${actorName}();\n\nprotected:\n    virtual void BeginPlay() override;\n\npublic:\n    virtual void Tick(float DeltaTime) override;\n};\n`,
+    },
+    {
+      relativePath: `Source/${moduleName}/Private/${actorName}.cpp`,
+      content: `#include "${actorName}.h"\n\n${actorName}::${actorName}()\n{\n    PrimaryActorTick.bCanEverTick = true;\n}\n\nvoid ${actorName}::BeginPlay()\n{\n    Super::BeginPlay();\n}\n\nvoid ${actorName}::Tick(float DeltaTime)\n{\n    Super::Tick(DeltaTime);\n}\n`,
+    },
+  ]
+}
+
 export async function writeModuleScaffold(
   request: UnrealModuleScaffoldRequest,
 ): Promise<UnrealScaffoldFile[]> {
   const files = createModuleScaffoldPlan(request)
+
+  for (const file of files) {
+    const absolute = path.join(request.projectRoot, file.relativePath)
+    await mkdir(path.dirname(absolute), { recursive: true })
+    await writeFile(absolute, file.content, 'utf8')
+  }
+
+  return files
+}
+
+export async function writeActorScaffold(
+  request: UnrealActorScaffoldRequest,
+): Promise<UnrealScaffoldFile[]> {
+  const files = createActorScaffoldPlan(request)
 
   for (const file of files) {
     const absolute = path.join(request.projectRoot, file.relativePath)

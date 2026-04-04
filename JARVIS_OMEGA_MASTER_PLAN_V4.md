@@ -1218,7 +1218,10 @@ Implementation state: ACTIVE.
 | S03 Tool Validation Pack (S03-1/2/3/4) | ✅ Passed | bun test ./src/tools/errorEnvelope.test.ts ./src/tools/recoveryOrchestrator.test.ts ./src/tools/parallelExecutor.test.ts ./src/tools/resultCache.test.ts -> 13 pass / 0 fail |
 | S04-1 Voice sidecar production hardening | ✅ Completed | Added voice capabilities endpoint + strict STT input validation in python-sidecar/main.py and TS voice client wrappers in src/services/systemControl/sidecarControl.ts |
 | S04-2 System control command pack (open-app, clipboard, window-focus, process-exists) | ✅ Completed | Added process-exists command and sidecar client wiring in src/commands/process-exists and src/services/systemControl/sidecarControl.ts |
+| S04-3 Unreal build-fix-verify loop | ✅ Completed | Added executable loop orchestration in MY_AI/src/services/unreal/buildFixLoop.ts and actor scaffold generation in MY_AI/src/services/unreal/moduleScaffold.ts |
+| S04-4 Web/doc tool (allowlist) | ✅ Completed | Enforced deny-by-default allowlist policy in MY_AI/src/tools/WebFetchTool/WebFetchTool.ts via MY_AI/src/tools/WebFetchTool/permissionPolicy.ts |
 | S04 System-Control Validation Pack | ✅ Passed | bun test ./src/services/systemControl/sidecarControl.test.ts ./src/services/systemControl/sidecarControl.timeout.test.ts ./src/services/systemControl/sidecarControl.load.test.ts -> 11 pass / 0 fail |
+| S04 Unreal/Web Validation Pack | ✅ Passed | bun test ./src/services/unreal ./src/tools/WebFetchTool/permissionPolicy.test.ts -> 18 pass / 0 fail |
 
 Next required gate:
 - Run 1-hour interactive stability session and append results to readiness reports.

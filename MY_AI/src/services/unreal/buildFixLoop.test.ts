@@ -1,13 +1,11 @@
 import { describe, expect, test } from 'bun:test'
 import { EventEmitter } from 'events'
-import { mkdtemp, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import path from 'path'
 
-import { runUnrealBuild } from './buildRunner.js'
-import { detectUnrealProject } from './projectDetector.js'
-import { analyzeUnrealBuildLog } from './logParser.js'
-import { suggestFixesFromAnalysis } from './fixSuggester.js'
+import { runUnrealBuildFixLoop } from './buildFixLoop.js'
+import { writeActorScaffold } from './moduleScaffold.js'
 
 async function withTempDir<T>(fn: (root: string) => Promise<T>): Promise<T> {
   const root = await mkdtemp(path.join(tmpdir(), 'my-ai-loop-'))
@@ -19,7 +17,7 @@ async function withTempDir<T>(fn: (root: string) => Promise<T>): Promise<T> {
 }
 
 describe('unreal build error fix loop', () => {
-  test('detects project, parses build failure, and generates fixes', async () => {
+  test('detects project, runs compile, and returns structured fix suggestions', async () => {
     await withTempDir(async root => {
       const uprojectPath = path.join(root, 'City.uproject')
       await writeFile(
@@ -27,10 +25,6 @@ describe('unreal build error fix loop', () => {
         JSON.stringify({ EngineAssociation: '5.4' }, null, 2),
         'utf8',
       )
-
-      const detected = await detectUnrealProject(root)
-      expect(detected.isUnrealProject).toBe(true)
-      expect(detected.uprojectPath).toBe(uprojectPath)
 
       const fakeSpawn = () => {
         const child = new EventEmitter() as EventEmitter & {
@@ -55,25 +49,47 @@ describe('unreal build error fix loop', () => {
         return child
       }
 
-      const buildResult = await runUnrealBuild(
+      const result = await runUnrealBuildFixLoop(
         {
-          uprojectPath,
+          startDir: root,
           target: 'CityEditor',
           configuration: 'Development',
+          maxIterations: 1,
         },
         fakeSpawn as never,
       )
 
-      expect(buildResult.exitCode).toBe(1)
-
-      const analysis = analyzeUnrealBuildLog(buildResult.stdout + '\n' + buildResult.stderr)
-      expect(analysis.summary.errorCount).toBe(2)
-
-      const suggestions = suggestFixesFromAnalysis(analysis)
-      expect(suggestions.length).toBeGreaterThan(0)
-      expect(suggestions.map(s => s.title)).toContain(
+      expect(result.status).toBe('build_failed')
+      expect(result.uprojectPath).toBe(uprojectPath)
+      expect(result.analysis?.summary.errorCount).toBe(2)
+      expect(result.suggestions.length).toBeGreaterThan(0)
+      expect(result.suggestions.map(s => s.title)).toContain(
         'Resolve missing include paths and headers',
       )
+    })
+  })
+
+  test('writes actor scaffold files for Unreal module generation', async () => {
+    await withTempDir(async root => {
+      const sourceDir = path.join(root, 'Source', 'City')
+      await mkdir(sourceDir, { recursive: true })
+      await writeFile(path.join(root, 'City.uproject'), '{"EngineAssociation":"5.4"}', 'utf8')
+
+      const files = await writeActorScaffold({
+        projectRoot: root,
+        moduleName: 'City',
+        actorName: 'ACityActor',
+      })
+
+      expect(files.length).toBe(2)
+      expect(files[0]?.relativePath).toContain('ACityActor.h')
+      expect(files[1]?.relativePath).toContain('ACityActor.cpp')
+
+      const header = await readFile(
+        path.join(root, 'Source', 'City', 'Public', 'ACityActor.h'),
+        'utf8',
+      )
+      expect(header).toContain('class CITY_API ACityActor : public AActor')
     })
   })
 })

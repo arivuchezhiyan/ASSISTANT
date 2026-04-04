@@ -6,6 +6,7 @@ import { lazySchema } from '../../utils/lazySchema.js'
 import type { PermissionDecision } from '../../utils/permissions/PermissionResult.js'
 import { getRuleByContentsForTool } from '../../utils/permissions/permissions.js'
 import { isPreapprovedHost } from './preapproved.js'
+import { decideWebFetchPermissionBehavior } from './permissionPolicy.js'
 import { DESCRIPTION, WEB_FETCH_TOOL_NAME } from './prompt.js'
 import {
   getToolUseSummary,
@@ -128,7 +129,26 @@ export const WebFetchTool = buildTool({
       WebFetchTool,
       'deny',
     ).get(ruleContent)
-    if (denyRule) {
+    const askRule = getRuleByContentsForTool(
+      permissionContext,
+      WebFetchTool,
+      'ask',
+    ).get(ruleContent)
+
+    const allowRule = getRuleByContentsForTool(
+      permissionContext,
+      WebFetchTool,
+      'allow',
+    ).get(ruleContent)
+
+    const behavior = decideWebFetchPermissionBehavior({
+      isPreapproved: false,
+      hasDenyRule: Boolean(denyRule),
+      hasAskRule: Boolean(askRule),
+      hasAllowRule: Boolean(allowRule),
+    })
+
+    if (behavior === 'deny' && denyRule) {
       return {
         behavior: 'deny',
         message: `${WebFetchTool.name} denied access to ${ruleContent}.`,
@@ -139,12 +159,7 @@ export const WebFetchTool = buildTool({
       }
     }
 
-    const askRule = getRuleByContentsForTool(
-      permissionContext,
-      WebFetchTool,
-      'ask',
-    ).get(ruleContent)
-    if (askRule) {
+    if (behavior === 'ask' && askRule) {
       return {
         behavior: 'ask',
         message: `Claude requested permissions to use ${WebFetchTool.name}, but you haven't granted it yet.`,
@@ -156,12 +171,7 @@ export const WebFetchTool = buildTool({
       }
     }
 
-    const allowRule = getRuleByContentsForTool(
-      permissionContext,
-      WebFetchTool,
-      'allow',
-    ).get(ruleContent)
-    if (allowRule) {
+    if (behavior === 'allow' && allowRule) {
       return {
         behavior: 'allow',
         updatedInput: input,
@@ -173,9 +183,13 @@ export const WebFetchTool = buildTool({
     }
 
     return {
-      behavior: 'ask',
-      message: `Claude requested permissions to use ${WebFetchTool.name}, but you haven't granted it yet.`,
+      behavior: 'deny',
+      message: `${WebFetchTool.name} denied access to ${ruleContent}. Add an explicit allow rule to proceed.`,
       suggestions: buildSuggestions(ruleContent),
+      decisionReason: {
+        type: 'other',
+        reason: 'Deny-by-default WebFetch allowlist policy',
+      },
     }
   },
   async prompt(_options) {
