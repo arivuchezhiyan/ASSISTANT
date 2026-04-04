@@ -1216,8 +1216,9 @@ Implementation state: ACTIVE.
 | S03-3 Error recovery orchestrator (retry -> degrade -> escalate) | ✅ Completed | Recovery pipeline in src/tools/recoveryOrchestrator.ts + envelopes |
 | S03-4 Tool error envelope standardization | ✅ Completed | Shared envelope applied to query tool_result failures in src/query.ts |
 | S03 Tool Validation Pack (S03-1/2/3/4) | ✅ Passed | bun test ./src/tools/errorEnvelope.test.ts ./src/tools/recoveryOrchestrator.test.ts ./src/tools/parallelExecutor.test.ts ./src/tools/resultCache.test.ts -> 13 pass / 0 fail |
+| S04-1 Voice sidecar production hardening | ✅ Completed | Added voice capabilities endpoint + strict STT input validation in python-sidecar/main.py and TS voice client wrappers in src/services/systemControl/sidecarControl.ts |
 | S04-2 System control command pack (open-app, clipboard, window-focus, process-exists) | ✅ Completed | Added process-exists command and sidecar client wiring in src/commands/process-exists and src/services/systemControl/sidecarControl.ts |
-| S04 System-Control Validation Pack | ✅ Passed | bun test ./src/commands/process-exists/process-exists.test.ts ./src/services/systemControl/sidecarControl.test.ts ./src/services/systemControl/sidecarControl.timeout.test.ts ./src/services/systemControl/sidecarControl.load.test.ts -> 10 pass / 0 fail |
+| S04 System-Control Validation Pack | ✅ Passed | bun test ./src/services/systemControl/sidecarControl.test.ts ./src/services/systemControl/sidecarControl.timeout.test.ts ./src/services/systemControl/sidecarControl.load.test.ts -> 11 pass / 0 fail |
 
 Next required gate:
 - Run 1-hour interactive stability session and append results to readiness reports.

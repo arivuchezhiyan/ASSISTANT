@@ -15,7 +15,43 @@ export type SidecarHealth = {
   status: string
   sidecar?: string
   stt_model?: string
+  stt_available?: string
   tts_engine?: string
+}
+
+export type SidecarVoiceCapabilities = {
+  stt_available: boolean
+  stt_model: string
+  tts_engine: string
+  tts_sample_rate_hz: number
+  max_text_fallback_chars: number
+}
+
+export type SidecarSttRequest = {
+  audioPath?: string
+  audioBase64?: string
+  language?: string
+  prompt?: string
+  textFallback?: string
+}
+
+export type SidecarSttResponse = {
+  text: string
+  language?: string
+  model?: string
+}
+
+export type SidecarTtsRequest = {
+  text: string
+  voice?: string
+  rate?: number
+}
+
+export type SidecarTtsResponse = {
+  audio_base64: string
+  format: string
+  sample_rate_hz: number
+  engine: string
 }
 
 function getSidecarBaseUrl(): string {
@@ -94,6 +130,10 @@ export async function getSidecarHealth(): Promise<SidecarHealth> {
   return sidecarRequest<SidecarHealth>('/health')
 }
 
+export async function getSidecarVoiceCapabilities(): Promise<SidecarVoiceCapabilities> {
+  return sidecarRequest<SidecarVoiceCapabilities>('/voice/capabilities')
+}
+
 export async function openAppWithSidecar(req: OpenAppRequest): Promise<void> {
   await sidecarRequest<void>('/system/open-app', {
     method: 'POST',
@@ -154,4 +194,39 @@ export async function processExistsWithSidecar(
     },
   )
   return payload.exists === true
+}
+
+export async function transcribeWithSidecar(
+  req: SidecarSttRequest,
+): Promise<SidecarSttResponse> {
+  return sidecarRequest<SidecarSttResponse>('/voice/stt/transcribe', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      audio_path: req.audioPath,
+      audio_base64: req.audioBase64,
+      language: req.language,
+      prompt: req.prompt,
+      text_fallback: req.textFallback,
+    }),
+  })
+}
+
+export async function synthesizeWithSidecar(
+  req: SidecarTtsRequest,
+): Promise<SidecarTtsResponse> {
+  return sidecarRequest<SidecarTtsResponse>('/voice/tts/synthesize', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      text: req.text,
+      voice: req.voice,
+      rate: req.rate,
+      format: 'wav',
+    }),
+  })
 }

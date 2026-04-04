@@ -53,6 +53,14 @@ class TtsRequest(BaseModel):
 _WHISPER_MODEL = None
 
 
+def _is_whisper_available() -> bool:
+    try:
+        import faster_whisper  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
 def _safe_env_int(name: str, default: int) -> int:
     raw = os.getenv(name)
     if raw is None:
@@ -107,7 +115,19 @@ def health() -> dict[str, str]:
         "status": "ok",
         "sidecar": "python",
         "stt_model": os.getenv("STT_MODEL", "small.en"),
+        "stt_available": "true" if _is_whisper_available() else "false",
         "tts_engine": "fallback_tone",
+    }
+
+
+@app.get("/voice/capabilities")
+def voice_capabilities() -> dict[str, str | bool | int]:
+    return {
+        "stt_available": _is_whisper_available(),
+        "stt_model": os.getenv("STT_MODEL", "small.en"),
+        "tts_engine": "fallback_tone",
+        "tts_sample_rate_hz": 22050,
+        "max_text_fallback_chars": 4096,
     }
 
 
@@ -184,11 +204,16 @@ def window_focus(req: WindowFocusRequest) -> dict[str, bool]:
 @app.post("/voice/stt/transcribe")
 def stt_transcribe(req: SttRequest) -> dict[str, Optional[str]]:
     if req.text_fallback:
+        if len(req.text_fallback) > 4096:
+            raise HTTPException(status_code=400, detail="text_fallback too long")
         return {
             "text": req.text_fallback.strip(),
             "language": req.language,
             "model": "fallback",
         }
+
+    if req.audio_path and req.audio_base64:
+        raise HTTPException(status_code=400, detail="provide only one of audio_path or audio_base64")
 
     model = _load_whisper_model()
 
@@ -210,6 +235,9 @@ def stt_transcribe(req: SttRequest) -> dict[str, Optional[str]]:
             tmp.close()
 
     try:
+        if not os.path.exists(input_path):
+            raise HTTPException(status_code=400, detail=f"audio path not found: {input_path}")
+
         segments, info = model.transcribe(
             input_path,
             language=req.language,

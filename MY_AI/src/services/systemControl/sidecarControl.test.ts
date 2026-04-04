@@ -3,8 +3,11 @@ import { describe, expect, test } from 'bun:test'
 import {
   focusWindowWithSidecar,
   getSidecarHealth,
+  getSidecarVoiceCapabilities,
   processExistsWithSidecar,
   readClipboardWithSidecar,
+  synthesizeWithSidecar,
+  transcribeWithSidecar,
   writeClipboardWithSidecar,
 } from './sidecarControl.js'
 
@@ -60,6 +63,7 @@ describe('sidecarControl', () => {
           status: 'ok',
           sidecar: 'python',
           stt_model: 'small.en',
+          stt_available: 'true',
         }),
         {
           status: 200,
@@ -71,6 +75,82 @@ describe('sidecarControl', () => {
       const health = await getSidecarHealth()
       expect(health.status).toBe('ok')
       expect(health.sidecar).toBe('python')
+      expect(health.stt_available).toBe('true')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test('reads sidecar voice capabilities', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify({
+          stt_available: true,
+          stt_model: 'small.en',
+          tts_engine: 'fallback_tone',
+          tts_sample_rate_hz: 22050,
+          max_text_fallback_chars: 4096,
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      )) as typeof fetch
+
+    try {
+      const caps = await getSidecarVoiceCapabilities()
+      expect(caps.stt_available).toBe(true)
+      expect(caps.tts_engine).toBe('fallback_tone')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test('transcribes via sidecar voice STT endpoint', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify({
+          text: 'hello from stt',
+          language: 'en',
+          model: 'small.en',
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      )) as typeof fetch
+
+    try {
+      const result = await transcribeWithSidecar({ textFallback: 'hello from stt' })
+      expect(result.text).toBe('hello from stt')
+      expect(result.model).toBe('small.en')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test('synthesizes via sidecar voice TTS endpoint', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify({
+          audio_base64: 'UklGRgAA',
+          format: 'wav',
+          sample_rate_hz: 22050,
+          engine: 'fallback_tone',
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      )) as typeof fetch
+
+    try {
+      const result = await synthesizeWithSidecar({ text: 'hello world' })
+      expect(result.format).toBe('wav')
+      expect(result.engine).toBe('fallback_tone')
     } finally {
       globalThis.fetch = originalFetch
     }
