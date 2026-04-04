@@ -1,0 +1,247 @@
+:root {
+  --bg-1: #08152b;
+  --bg-2: #0a213f;
+  --pink: #ff5f9f;
+  --blue: #54c4ff;
+  --mint: #8ff2de;
+  --text: #eef7ff;
+  --glass: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 15% 10%, #173966 0%, var(--bg-1) 40%, #050c19 100%);
+  overflow-x: hidden;
+}
+
+.background-orb {
+  position: fixed;
+  border-radius: 999px;
+  filter: blur(50px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.orb-a {
+  width: 260px;
+  height: 260px;
+  background: var(--pink);
+  top: 8%;
+  left: -40px;
+}
+
+.orb-b {
+  width: 320px;
+  height: 320px;
+  background: var(--blue);
+  top: 30%;
+  right: -90px;
+}
+
+.orb-c {
+  width: 220px;
+  height: 220px;
+  background: var(--mint);
+  bottom: -60px;
+  left: 35%;
+}
+
+.app-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 16px 36px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.glass-panel {
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 70px rgba(5, 13, 28, 0.45);
+  backdrop-filter: blur(18px);
+  border-radius: 26px;
+  padding: 18px;
+}
+
+.hero-panel {
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #bedbff;
+}
+
+h1 {
+  margin: 6px 0 8px;
+  font-size: clamp(28px, 6vw, 48px);
+  line-height: 1;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.status-line {
+  margin: 0;
+  color: #d8e9ff;
+}
+
+.wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  height: 58px;
+}
+
+.wave span {
+  width: 7px;
+  height: 10px;
+  border-radius: 99px;
+  background: linear-gradient(180deg, #fff, var(--blue));
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.wave span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.wave span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.wave span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.wave span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.wave span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  color: #d5e7ff;
+}
+
+input,
+select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: rgba(7, 27, 51, 0.45);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 11px;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.btn-primary {
+  color: #03182f;
+  background: linear-gradient(120deg, #7ef2f7, #6bb8ff);
+}
+
+.btn-soft {
+  color: #e8f5ff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.demo-wrap {
+  margin-top: 12px;
+}
+
+.transcript-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 290px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.transcript-list li {
+  background: rgba(8, 23, 42, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9dd9ff;
+}
+
+.analysis-box {
+  min-height: 250px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  padding: 12px;
+  background: rgba(8, 24, 45, 0.4);
+}
+
+.muted {
+  color: #c7dcf8;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

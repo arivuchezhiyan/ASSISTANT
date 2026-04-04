@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MY AI Voice UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="background-orb orb-a"></div>
+    <div class="background-orb orb-b"></div>
+    <div class="background-orb orb-c"></div>
+
+    <main class="app-shell">
+      <section class="glass-panel hero-panel">
+        <div class="title-wrap">
+          <p class="eyebrow">Voice Agent</p>
+          <h1 id="assistantNameHeading">Jarvis</h1>
+          <p id="statusLine" class="status-line">Idle. Waiting for wake word.</p>
+        </div>
+        <div class="wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="glass-panel controls-panel">
+          <h2>Wake Setup</h2>
+          <label for="assistantNameInput">Assistant Name</label>
+          <input id="assistantNameInput" type="text" value="Jarvis" />
+
+          <label for="wakePrefixInput">Wake Prefix</label>
+          <select id="wakePrefixInput">
+            <option value="hey">Hey</option>
+            <option value="ok">Ok</option>
+            <option value="hello">Hello</option>
+          </select>
+
+          <div class="actions">
+            <button id="startBtn" class="btn btn-primary">Start Listening</button>
+            <button id="stopBtn" class="btn btn-soft">Stop</button>
+          </div>
+
+          <div class="demo-wrap">
+            <label for="demoInput">Demo Voice Input</label>
+            <input
+              id="demoInput"
+              type="text"
+              placeholder="Hey Jarvis open browser and search Unreal navmesh"
+            />
+            <button id="demoBtn" class="btn btn-soft">Run Demo Input</button>
+          </div>
+        </article>
+
+        <article class="glass-panel transcript-panel">
+          <h2>Live Voice Input</h2>
+          <ul id="transcriptList" class="transcript-list"></ul>
+        </article>
+
+        <article class="glass-panel analysis-panel">
+          <h2>Command Analysis</h2>
+          <div id="analysisBox" class="analysis-box">
+            <p class="muted">No command analyzed yet.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
