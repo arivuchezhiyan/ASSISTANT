@@ -989,7 +989,7 @@ This section merges all outstanding (planned, pending, gap) work from the prior 
 | LC-13 | Unreal Connector MVP completion (build-fix-verify loop) | ✅ Completed | High | P5 | End-to-end compile diagnostics and fix suggestion loop |
 | LC-14 | Web and documentation access tool (allowlist only) | ✅ Completed | Low | P5 | Deny-by-default policy + sanitized retrieval |
 | LC-15 | Feedback ingestion pipeline (pre-training signal layer) | ✅ Completed | Medium | P6 | Structured feedback events, privacy-safe staging |
-| LC-16 | Proactive suggestion engine | 🔲 Planned | Medium | P6 | Confidence-scored next-step suggestions |
+| LC-16 | Proactive suggestion engine | ✅ Completed | Medium | P6 | Confidence-scored next-step suggestions |
 | LC-17 | Policy/abuse regression suite expansion | 🔲 Planned | High | P7 | L5/L3/L4 safety regressions always caught |
 | LC-18 | Crash recovery + resumable checkpoints | 🔲 Planned | High | P7 | Resume from last checkpoint after interruption |
 | LC-19 | Audit/redaction tamper-evident log | 🔲 Planned | Medium | P7 | Full action trace with secret-safe logging |
@@ -1224,6 +1224,8 @@ Implementation state: ACTIVE.
 | S04 System-Control Validation Pack | ✅ Passed | bun test ./src/services/systemControl/sidecarControl.test.ts ./src/services/systemControl/sidecarControl.timeout.test.ts ./src/services/systemControl/sidecarControl.load.test.ts -> 11 pass / 0 fail |
 | S04 Unreal/Web Validation Pack | ✅ Passed | bun test ./src/services/unreal ./src/tools/WebFetchTool/permissionPolicy.test.ts -> 18 pass / 0 fail |
 | LC-15 Validation Pack | ✅ Passed | bun test ./src/feedback ./src/services/unreal ./src/tools/WebFetchTool/permissionPolicy.test.ts -> 20 pass / 0 fail |
+| LC-16 Proactive suggestion engine | ✅ Completed | Added confidence-scored suggestion pipeline in MY_AI/src/proactive/suggestionEngine.ts and turn-complete integration in MY_AI/src/QueryEngine.ts |
+| LC-16 Validation Pack | ✅ Passed | bun test ./src/proactive ./src/feedback -> 4 pass / 0 fail |
 
 Next required gate:
 - Run 1-hour interactive stability session and append results to readiness reports.

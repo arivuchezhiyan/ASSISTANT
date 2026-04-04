@@ -90,6 +90,7 @@ import { logEvent } from './services/analytics/index.js'
 import { resolveModelRetryPolicy } from './query/modelRetryPolicy.js'
 import { extractAndStoreTurnMemory } from './memory/memoryExtractor.js'
 import { ingestTurnFeedback } from './feedback/ingestion.js'
+import { generateAndStoreProactiveSuggestions } from './proactive/suggestionEngine.js'
 
 // Lazy: MessageSelector.tsx pulls React/ink; only needed for message filtering at query time
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -715,6 +716,14 @@ export class QueryEngine {
       } catch {
         // Feedback ingestion must never fail the main request path.
       }
+
+      try {
+        await generateAndStoreProactiveSuggestions(this.mutableMessages, {
+          sessionId: getSessionId(),
+        })
+      } catch {
+        // Proactive suggestion generation must never fail the main request path.
+      }
       return
     }
 
@@ -1169,6 +1178,14 @@ export class QueryEngine {
         // Feedback ingestion must never fail the main request path.
       }
 
+      try {
+        await generateAndStoreProactiveSuggestions(this.mutableMessages, {
+          sessionId: getSessionId(),
+        })
+      } catch {
+        // Proactive suggestion generation must never fail the main request path.
+      }
+
       yield {
         type: 'result',
         subtype: 'error_during_execution',
@@ -1236,6 +1253,14 @@ export class QueryEngine {
       })
     } catch {
       // Feedback ingestion must never fail the main request path.
+    }
+
+    try {
+      await generateAndStoreProactiveSuggestions(this.mutableMessages, {
+        sessionId: getSessionId(),
+      })
+    } catch {
+      // Proactive suggestion generation must never fail the main request path.
     }
 
     yield {
