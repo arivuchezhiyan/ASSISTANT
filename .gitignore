@@ -22,3 +22,4 @@ __pycache__/
 MY_AI/data/vector-store*.json
 MY_AI/data/test-*.json
 MY_AI/data/orchestrator/*.pid
+MY_AI/data/orchestrator/state.json
