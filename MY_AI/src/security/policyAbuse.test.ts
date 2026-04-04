@@ -10,6 +10,8 @@ import {
 import { executeWithRecovery } from '../services/tools/recoveryOrchestrator.js'
 import { exportMemories, redactMemory } from '../memory/memoryGovernance.js'
 import { DiskVectorStoreAdapter } from '../memory/vectorStore.js'
+import { decideWebFetchPermissionBehavior } from '../tools/WebFetchTool/permissionPolicy.js'
+import { ingestTurnFeedback } from '../feedback/ingestion.js'
 
 async function withTempDir<T>(fn: (root: string) => Promise<T>): Promise<T> {
   const root = await mkdtemp(path.join(tmpdir(), 'my-ai-policy-'))
@@ -70,6 +72,70 @@ describe('policy and abuse safety suite', () => {
       expect(exported.includes('[REDACTED]')).toBe(true)
 
       await store.clear()
+    })
+  })
+
+  test('webfetch policy enforces deny-by-default for unknown domains', () => {
+    const behavior = decideWebFetchPermissionBehavior({
+      isPreapproved: false,
+      hasDenyRule: false,
+      hasAskRule: false,
+      hasAllowRule: false,
+    })
+
+    expect(behavior).toBe('deny')
+  })
+
+  test('webfetch policy honors explicit allow when no deny exists', () => {
+    const behavior = decideWebFetchPermissionBehavior({
+      isPreapproved: false,
+      hasDenyRule: false,
+      hasAskRule: false,
+      hasAllowRule: true,
+    })
+
+    expect(behavior).toBe('allow')
+  })
+
+  test('feedback ingestion redacts credential-like patterns before persistence', async () => {
+    await withTempDir(async root => {
+      const vaultPath = path.join(root, 'feedback-events.jsonl')
+
+      const record = await ingestTurnFeedback(
+        [
+          {
+            type: 'user',
+            message: {
+              content:
+                'api_key=tok_live_123 password=mySecret email admin@example.com',
+            },
+          },
+          {
+            type: 'assistant',
+            message: {
+              content: [{ type: 'text', text: 'Using Bearer abc123xyz' }],
+            },
+          },
+        ] as any,
+        {
+          sessionId: 's-policy-1',
+          outcome: 'success',
+          vaultPath,
+        },
+      )
+
+      expect(record).not.toBeNull()
+      expect(record?.privacy.redactionCount).toBeGreaterThanOrEqual(3)
+
+      const saved = await readFile(vaultPath, 'utf8')
+      expect(saved.includes('tok_live_123')).toBe(false)
+      expect(saved.includes('mySecret')).toBe(false)
+      expect(saved.includes('admin@example.com')).toBe(false)
+      expect(saved.includes('Bearer abc123xyz')).toBe(false)
+      expect(saved.includes('[REDACTED_KEY]')).toBe(true)
+      expect(saved.includes('[REDACTED_PASSWORD]')).toBe(true)
+      expect(saved.includes('[REDACTED_EMAIL]')).toBe(true)
+      expect(saved.includes('Bearer [REDACTED_TOKEN]')).toBe(true)
     })
   })
 })

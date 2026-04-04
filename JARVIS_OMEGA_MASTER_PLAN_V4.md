@@ -990,7 +990,7 @@ This section merges all outstanding (planned, pending, gap) work from the prior 
 | LC-14 | Web and documentation access tool (allowlist only) | ✅ Completed | Low | P5 | Deny-by-default policy + sanitized retrieval |
 | LC-15 | Feedback ingestion pipeline (pre-training signal layer) | ✅ Completed | Medium | P6 | Structured feedback events, privacy-safe staging |
 | LC-16 | Proactive suggestion engine | ✅ Completed | Medium | P6 | Confidence-scored next-step suggestions |
-| LC-17 | Policy/abuse regression suite expansion | 🔲 Planned | High | P7 | L5/L3/L4 safety regressions always caught |
+| LC-17 | Policy/abuse regression suite expansion | ✅ Completed | High | P7 | L5/L3/L4 safety regressions always caught |
 | LC-18 | Crash recovery + resumable checkpoints | 🔲 Planned | High | P7 | Resume from last checkpoint after interruption |
 | LC-19 | Audit/redaction tamper-evident log | 🔲 Planned | Medium | P7 | Full action trace with secret-safe logging |
 | LC-20 | Benchmark harness + KPI trend loop | 🔲 Planned | High | P8 | Weekly benchmark, regression detection, tuning loop |
@@ -1226,6 +1226,8 @@ Implementation state: ACTIVE.
 | LC-15 Validation Pack | ✅ Passed | bun test ./src/feedback ./src/services/unreal ./src/tools/WebFetchTool/permissionPolicy.test.ts -> 20 pass / 0 fail |
 | LC-16 Proactive suggestion engine | ✅ Completed | Added confidence-scored suggestion pipeline in MY_AI/src/proactive/suggestionEngine.ts and turn-complete integration in MY_AI/src/QueryEngine.ts |
 | LC-16 Validation Pack | ✅ Passed | bun test ./src/proactive ./src/feedback -> 4 pass / 0 fail |
+| LC-17 Policy/abuse regression suite expansion | ✅ Completed | Expanded security regression coverage in MY_AI/src/security/policyAbuse.test.ts for permission bypass, deny-by-default webfetch policy, and secret-redaction persistence checks |
+| LC-17 Validation Pack | ✅ Passed | bun test ./src/security/policyAbuse.test.ts ./src/tools/WebFetchTool/permissionPolicy.test.ts ./src/feedback/ingestion.test.ts -> 12 pass / 0 fail |
 
 Next required gate:
 - Run 1-hour interactive stability session and append results to readiness reports.
