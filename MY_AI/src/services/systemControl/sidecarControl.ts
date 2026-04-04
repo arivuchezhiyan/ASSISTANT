@@ -7,6 +7,10 @@ export type WindowFocusRequest = {
   windowTitle: string
 }
 
+export type ProcessCheckRequest = {
+  processName: string
+}
+
 export type SidecarHealth = {
   status: string
   sidecar?: string
@@ -134,4 +138,20 @@ export async function focusWindowWithSidecar(
     },
   )
   return payload.focused === true
+}
+
+export async function processExistsWithSidecar(
+  req: ProcessCheckRequest,
+): Promise<boolean> {
+  const payload = await sidecarRequest<{ exists?: boolean }>(
+    '/system/process/exists',
+    {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ process_name: req.processName }),
+    },
+  )
+  return payload.exists === true
 }

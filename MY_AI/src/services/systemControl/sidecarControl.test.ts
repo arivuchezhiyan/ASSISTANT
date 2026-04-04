@@ -3,6 +3,7 @@ import { describe, expect, test } from 'bun:test'
 import {
   focusWindowWithSidecar,
   getSidecarHealth,
+  processExistsWithSidecar,
   readClipboardWithSidecar,
   writeClipboardWithSidecar,
 } from './sidecarControl.js'
@@ -70,6 +71,22 @@ describe('sidecarControl', () => {
       const health = await getSidecarHealth()
       expect(health.status).toBe('ok')
       expect(health.sidecar).toBe('python')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test('checks process existence via sidecar', async () => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ exists: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })) as typeof fetch
+
+    try {
+      const exists = await processExistsWithSidecar({ processName: 'code.exe' })
+      expect(exists).toBe(true)
     } finally {
       globalThis.fetch = originalFetch
     }
