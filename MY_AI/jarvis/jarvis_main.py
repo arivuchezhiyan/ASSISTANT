@@ -13,6 +13,7 @@ Features:
 - Unreal Engine skill pack
 - Crash recovery + resumable checkpoints (LC-18)
 - Tamper-evident audit log with secret redaction (LC-19)
+- Benchmark harness + KPI trend loop (LC-20)
 
 Run with:
     python -m jarvis.jarvis_main
@@ -28,6 +29,7 @@ from rich.panel import Panel
 
 from jarvis.core.attack_engine import AttackEngine
 from jarvis.core.audit_log import AuditLogger
+from jarvis.core.benchmark import KPICollector
 from jarvis.core.automation import DesktopAutomation, UnrealEngineSkill
 from jarvis.core.boot import run_boot_sequence
 from jarvis.core.brain import Brain
@@ -54,6 +56,7 @@ def _listen_for_command(
     brain: Brain,
     ckpt: CheckpointManager,
     audit: AuditLogger,
+    kpi: KPICollector,
 ) -> None:
     """Called on each wake-word detection. Records + executes user command."""
     console.print("\n[bold bright_green]  JARVIS ▶  [/][dim]Yes sir, I'm listening...[/]")
@@ -72,10 +75,21 @@ def _listen_for_command(
     intent = brain._intent(command_text)
     audit.log_command(user_input=command_text, intent=intent, source="voice")
 
+    t0 = time.perf_counter()
     result = brain.process(command_text)
+    latency_ms = (time.perf_counter() - t0) * 1000
 
     # ── audit: log JARVIS response ───────────────────────────────────────────
     audit.log_response(output=result.spoken or "", intent=intent, success=result.success)
+
+    # ── KPI: record command metric ───────────────────────────────────────────
+    kpi.record_command(
+        intent=intent,
+        latency_ms=latency_ms,
+        success=result.success,
+        input_length=len(command_text),
+        output_length=len(result.spoken or ""),
+    )
 
     # ── checkpoint: track last exchange ───────────────────────────────────────
     ckpt.last_user_input = command_text
@@ -118,6 +132,7 @@ def main() -> None:
     # ── Crash detection (BEFORE heavy init) ───────────────────────────────────
     ckpt = CheckpointManager()
     audit = AuditLogger(session_id=ckpt.session_id)
+    kpi = KPICollector(session_id=ckpt.session_id)
     crashed, old_checkpoint = ckpt.detect_crash()
 
     if crashed and old_checkpoint:
@@ -215,6 +230,10 @@ def main() -> None:
         f"  [dim green]Audit log armed — tamper-evident trail → "
         f"{audit.log_path.name}[/]"
     )
+    console.print(
+        f"  [dim green]KPI benchmark engine online — "
+        f"tracking latency, intent accuracy, resource usage.[/]"
+    )
 
     # ── Boot sequence ─────────────────────────────────────────────────────────
     run_boot_sequence(voice=voice, weather=weather)
@@ -229,7 +248,7 @@ def main() -> None:
     stop_event = threading.Event()
 
     def _on_wake() -> None:
-        _listen_for_command(voice, brain, ckpt, audit)
+        _listen_for_command(voice, brain, ckpt, audit, kpi)
         _sync_checkpoint(ckpt, brain, memory)
 
     voice.start_continuous_wake_loop(on_wake=_on_wake, stop_event=stop_event)
@@ -274,13 +293,24 @@ def main() -> None:
                         user_input=cmd, intent=text_intent, source="text"
                     )
 
+                    t0 = time.perf_counter()
                     res = brain.process(cmd)
+                    latency_ms = (time.perf_counter() - t0) * 1000
 
                     # Audit: log response
                     audit.log_response(
                         output=res.spoken or "",
                         intent=text_intent,
                         success=res.success if res else True,
+                    )
+
+                    # KPI: record metric
+                    kpi.record_command(
+                        intent=text_intent,
+                        latency_ms=latency_ms,
+                        success=res.success if res else True,
+                        input_length=len(cmd),
+                        output_length=len(res.spoken or "") if res else 0,
                     )
 
                     # Track in checkpoint
