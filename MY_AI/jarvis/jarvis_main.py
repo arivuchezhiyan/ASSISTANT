@@ -12,6 +12,7 @@ Features:
 - Full desktop automation: any app, any website
 - Unreal Engine skill pack
 - Crash recovery + resumable checkpoints (LC-18)
+- Tamper-evident audit log with secret redaction (LC-19)
 
 Run with:
     python -m jarvis.jarvis_main
@@ -26,6 +27,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from jarvis.core.attack_engine import AttackEngine
+from jarvis.core.audit_log import AuditLogger
 from jarvis.core.automation import DesktopAutomation, UnrealEngineSkill
 from jarvis.core.boot import run_boot_sequence
 from jarvis.core.brain import Brain
@@ -48,7 +50,10 @@ WAKE_WORD = "hey jarvis"
 
 
 def _listen_for_command(
-    voice: VoiceEngine, brain: Brain, ckpt: CheckpointManager
+    voice: VoiceEngine,
+    brain: Brain,
+    ckpt: CheckpointManager,
+    audit: AuditLogger,
 ) -> None:
     """Called on each wake-word detection. Records + executes user command."""
     console.print("\n[bold bright_green]  JARVIS ▶  [/][dim]Yes sir, I'm listening...[/]")
@@ -63,7 +68,14 @@ def _listen_for_command(
 
     console.print(f"\n  [bold yellow]YOU ▶[/]  {command_text}\n")
 
+    # ── audit: log user command ───────────────────────────────────────────────
+    intent = brain._intent(command_text)
+    audit.log_command(user_input=command_text, intent=intent, source="voice")
+
     result = brain.process(command_text)
+
+    # ── audit: log JARVIS response ───────────────────────────────────────────
+    audit.log_response(output=result.spoken or "", intent=intent, success=result.success)
 
     # ── checkpoint: track last exchange ───────────────────────────────────────
     ckpt.last_user_input = command_text
@@ -105,6 +117,7 @@ def main() -> None:
 
     # ── Crash detection (BEFORE heavy init) ───────────────────────────────────
     ckpt = CheckpointManager()
+    audit = AuditLogger(session_id=ckpt.session_id)
     crashed, old_checkpoint = ckpt.detect_crash()
 
     if crashed and old_checkpoint:
@@ -182,6 +195,10 @@ def main() -> None:
             f"  [green]✔ Restored {len(old_checkpoint.conversation_history)} "
             f"conversation messages from last session.[/]\n"
         )
+        audit.log_crash_recovery(
+            old_session=old_checkpoint.session_id,
+            restored_msgs=len(old_checkpoint.conversation_history),
+        )
         resume_msg = (
             "I detected an unclean shutdown. "
             "I've restored your previous conversation context. "
@@ -189,10 +206,15 @@ def main() -> None:
         )
         voice.speak(resume_msg)
 
-    # ── Start checkpoint engine ───────────────────────────────────────────────
+    # ── Start checkpoint engine + audit boot ──────────────────────────────────
     ckpt.wake_word = WAKE_WORD
     _sync_checkpoint(ckpt, brain, memory)
     ckpt.start()
+    audit.log_boot(model=brain._model, memory_count=memory.count())
+    console.print(
+        f"  [dim green]Audit log armed — tamper-evident trail → "
+        f"{audit.log_path.name}[/]"
+    )
 
     # ── Boot sequence ─────────────────────────────────────────────────────────
     run_boot_sequence(voice=voice, weather=weather)
@@ -207,7 +229,7 @@ def main() -> None:
     stop_event = threading.Event()
 
     def _on_wake() -> None:
-        _listen_for_command(voice, brain, ckpt)
+        _listen_for_command(voice, brain, ckpt, audit)
         _sync_checkpoint(ckpt, brain, memory)
 
     voice.start_continuous_wake_loop(on_wake=_on_wake, stop_event=stop_event)
@@ -246,7 +268,20 @@ def main() -> None:
                 cmd = input().strip()
                 if cmd:
                     console.print(f"\n  [bold yellow]YOU (via text) ▶[/]  {cmd}\n")
+                    # Audit: log text command
+                    text_intent = brain._intent(cmd)
+                    audit.log_command(
+                        user_input=cmd, intent=text_intent, source="text"
+                    )
+
                     res = brain.process(cmd)
+
+                    # Audit: log response
+                    audit.log_response(
+                        output=res.spoken or "",
+                        intent=text_intent,
+                        success=res.success if res else True,
+                    )
 
                     # Track in checkpoint
                     ckpt.last_user_input = cmd
@@ -263,6 +298,7 @@ def main() -> None:
                 time.sleep(1)
     except KeyboardInterrupt:
         stop_event.set()
+        audit.log_shutdown(reason="user_ctrl_c")
         ckpt.shutdown()
         bye = "Goodbye sir. JARVIS shutting down. All systems powering off."
         console.print(f"\n[bold bright_cyan]JARVIS ▶[/]  {bye}")

@@ -124,7 +124,8 @@ jarvis/
 ├── __init__.py
 ├── data/
 │   ├── jarvis_memory/      ← Persistent vector memory (ChromaDB)
-│   └── checkpoints/        ← Session checkpoints (crash recovery)
+│   ├── checkpoints/        ← Session checkpoints (crash recovery)
+│   └── audit/              ← Tamper-evident audit trail (hash-chained)
 └── core/
     ├── __init__.py
     ├── boot.py             ← Boot animation + greeting
@@ -132,7 +133,8 @@ jarvis/
     ├── weather.py          ← Free weather API (no key needed)
     ├── automation.py       ← Desktop + Unreal Engine automation
     ├── brain.py            ← Command parser + Ollama AI
-    └── checkpoint.py       ← Crash recovery + resumable checkpoints
+    ├── checkpoint.py       ← Crash recovery + resumable checkpoints
+    └── audit_log.py        ← Tamper-evident audit + secret redaction
 ```
 
 ---
@@ -152,6 +154,29 @@ This means you never lose your conversation context, even after a power failure 
 - On clean shutdown (`Ctrl+C`), the lock is removed and a `.clean_exit` marker is written
 - If JARVIS starts and finds a lock with a dead PID and no clean exit marker → **crash detected**
 - Checkpoint history is pruned to the last 10 snapshots
+
+---
+
+## Tamper-Evident Audit Trail
+
+Every JARVIS action is recorded in a **SHA-256 hash-chained** audit log:
+
+- **Append-only** — entries are never modified, only appended
+- **Hash-chained** — each entry includes the hash of the previous entry; any modification breaks the chain
+- **Auto-redacted** — API keys, passwords, emails, phone numbers, SSH keys, and AWS credentials are scrubbed *before* writing to disk
+- **Daily rotation** — logs rotate daily with a SHA-256 digest file for each day
+- **Verifiable** — call `audit.verify()` or `audit.verify_all()` to check the full chain integrity
+
+**What gets logged:**
+- System boot / shutdown events
+- Crash recovery events
+- Every user command (voice + text) with detected intent
+- Every JARVIS response with success/failure status
+- Tool and engine invocations
+- Security / approval-gate decisions
+- Errors with context
+
+**Storage:** `jarvis/data/audit/audit_YYYY-MM-DD.jsonl`
 
 ---
 
