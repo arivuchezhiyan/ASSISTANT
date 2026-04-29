@@ -125,7 +125,13 @@ jarvis/
 ├── data/
 │   ├── jarvis_memory/      ← Persistent vector memory (ChromaDB)
 │   ├── checkpoints/        ← Session checkpoints (crash recovery)
-│   └── audit/              ← Tamper-evident audit trail (hash-chained)
+│   ├── audit/              ← Tamper-evident audit trail (hash-chained)
+│   ├── benchmarks/         ← KPI snapshots + trend reports
+│   ├── soak/               ← Soak stability time-series data
+│   ├── reflections/        ← Self-reflection trace logs
+│   ├── plans/              ← Mission plans (DAG executor)
+│   ├── workflows/          ← Workflow registry + domain packs
+│   └── orchestrator/       ← Watchdog service state
 └── core/
     ├── __init__.py
     ├── boot.py             ← Boot animation + greeting
@@ -134,7 +140,13 @@ jarvis/
     ├── automation.py       ← Desktop + Unreal Engine automation
     ├── brain.py            ← Command parser + Ollama AI
     ├── checkpoint.py       ← Crash recovery + resumable checkpoints
-    └── audit_log.py        ← Tamper-evident audit + secret redaction
+    ├── audit_log.py        ← Tamper-evident audit + secret redaction
+    ├── benchmark.py        ← KPI tracking + regression detection
+    ├── soak_monitor.py     ← Stability monitoring + anomaly detection
+    ├── reflection.py       ← Self-reflection loop (complexity-gated)
+    ├── orchestrator.py     ← Always-on watchdog service
+    ├── planner.py          ← Autonomous goal planner + DAG executor
+    └── workflow_registry.py← Workflow templates + domain packs
 ```
 
 ---
