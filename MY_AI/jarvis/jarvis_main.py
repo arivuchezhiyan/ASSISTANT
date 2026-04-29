@@ -14,6 +14,7 @@ Features:
 - Crash recovery + resumable checkpoints (LC-18)
 - Tamper-evident audit log with secret redaction (LC-19)
 - Benchmark harness + KPI trend loop (LC-20)
+- Soak stability monitor with anomaly detection (LC-21)
 
 Run with:
     python -m jarvis.jarvis_main
@@ -42,6 +43,7 @@ from jarvis.core.stealth_engine import StealthExecutionEngine
 from jarvis.core.stealth_ops import StealthOps
 from jarvis.core.learner import Learner
 from jarvis.core.memory import Memory
+from jarvis.core.soak_monitor import SoakMonitor
 from jarvis.core.voice import VoiceEngine
 from jarvis.core.weather import WeatherEngine
 from jarvis.core.youtube_skill import YouTubeSkill
@@ -133,6 +135,7 @@ def main() -> None:
     ckpt = CheckpointManager()
     audit = AuditLogger(session_id=ckpt.session_id)
     kpi = KPICollector(session_id=ckpt.session_id)
+    soak = SoakMonitor(session_id=ckpt.session_id)
     crashed, old_checkpoint = ckpt.detect_crash()
 
     if crashed and old_checkpoint:
@@ -234,6 +237,7 @@ def main() -> None:
         f"  [dim green]KPI benchmark engine online — "
         f"tracking latency, intent accuracy, resource usage.[/]"
     )
+    soak.start()
 
     # ── Boot sequence ─────────────────────────────────────────────────────────
     run_boot_sequence(voice=voice, weather=weather)
@@ -329,6 +333,13 @@ def main() -> None:
     except KeyboardInterrupt:
         stop_event.set()
         audit.log_shutdown(reason="user_ctrl_c")
+        soak_report = soak.stop()
+        if soak_report:
+            console.print(
+                f"  [dim cyan]Soak verdict: {soak_report.verdict} "
+                f"({soak_report.total_samples} samples, "
+                f"{soak_report.healthy_samples} healthy)[/]"
+            )
         ckpt.shutdown()
         bye = "Goodbye sir. JARVIS shutting down. All systems powering off."
         console.print(f"\n[bold bright_cyan]JARVIS ▶[/]  {bye}")
